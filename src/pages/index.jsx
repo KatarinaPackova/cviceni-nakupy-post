@@ -6,15 +6,15 @@ import './index.css';
 // TODO nezapomeňte nastavit svůj login – jednoznačný identifikátor (třeba název účtu na GitHubu)
 //const login = ""
 
-const response = await fetch(
-  'https://nakupy.czechitas.dev/api/mon',
-  {
-    headers: {
-      Authorization: login,
-    },
+const login = 'katka.katka';
+
+const response = await fetch('https://nakupy.czechitas.dev/api/mon', {
+  headers: {
+    Authorization: login,
   },
-);
+});
 const list = await response.json();
+console.log(list);
 
 const HomePage = () => (
   <>
@@ -31,7 +31,8 @@ const HomePage = () => (
       </form>
       <div className="shoplist">
         {list.map((item) => (
-          <ShopItem 
+          <ShopItem
+            id={item.id}
             key={item.id}
             name={item.product}
             amount={item.amount + ' ' + item.unit}
@@ -45,7 +46,8 @@ const HomePage = () => (
 
 document.querySelector('#root').innerHTML = render(<HomePage />);
 
-document.querySelector('.newitem-form')
+document
+  .querySelector('.newitem-form')
   .addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -60,18 +62,26 @@ document.querySelector('.newitem-form')
       done: false,
     };
 
-    await fetch(
-      'https://nakupy.czechitas.dev/api/mon',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: login,
-        },
-        body: JSON.stringify(body),
+    await fetch('https://nakupy.czechitas.dev/api/mon', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: login,
       },
-    );
+      body: JSON.stringify(body),
+    });
 
     window.location.reload();
-  }
-);
+  });
+
+const handleDelete = document.querySelectorAll('.btn-delete');
+handleDelete.forEach((button) => {
+  button.addEventListener('click', async (event) => {
+    const id = button.dataset.id;
+    console.log('id', id);
+    const response = await fetch(`https://nakupy.czechitas.dev/api/mon/${id}`, {
+      method: 'DELETE',
+    });
+    window.location.reload();
+  });
+});
